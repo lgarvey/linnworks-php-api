@@ -5,7 +5,7 @@ namespace Linnworks;
 require_once('nusoap/nusoap.php');
 
 
-class LinnworksError extends \Exception { }
+class LinnworksException extends \Exception { }
 
 class NotImplementedException extends \BadMethodCallException {}
 
@@ -60,7 +60,7 @@ class LinnworksApiBase{
      */
     protected function handleError($result){
         if(is_array($result) && array_key_exists('IsError', $result) && $result['IsError'] == "true"){
-            throw new LinnworksError($result['Error']);
+            throw new LinnworksException($result['Error']);
         }
 
         return false;
@@ -84,7 +84,7 @@ class LinnworksApiBase{
             }
         }
         else{
-            throw new LinnworksError('Error - invalid response from newsoap. See echo $api->debug() for more information');
+            throw new LinnworksException('Error - invalid response from newsoap. See echo $api->debug() for more information');
         }
     }
 }
