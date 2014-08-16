@@ -102,5 +102,14 @@ echo "New level: " . $result['Level'];
 
 Unfortunately the linnworks documentation is not the greatest and they only provide sample API code in C#, which does not help when doing a PHP integration. 
 
+Linnworks are apparently working on a new API interface which hopefully will provide much more flexiblity. I've discovered that the current API has the following limitations:
+
+*	You can't do stock tranfers via the API
+*	You can't record the user that has performed a specific action - though in audits, e.g a product audit, it will list the API key that performed a specific action
+*	There's a couple of bugs around order notes - I've found it difficult to add an order note to an open order.
+*	You can't control product inventory linking via the API
+*	You can't control order or order item extended properties via the API
+*	You can't change a product's SKU via SaveStockItem.  It causes a new product to be generated leaving the old product in place.
+
 Whilst this code is provided as is, and is by no means a completed project, hopefully it will speed up the development process for anyone needing to do a bespoke integration with linnworks via PHP.
 
