@@ -77,13 +77,20 @@ class LinnworksApiBase{
         $response = $this->getClient()->call($method, $args);
 
         if(is_array($response)){
-            $result = $response[$method.'Response'];
+            /*if($method == "UpdateStockItemLocation"){
+                var_dump($params);
+                echo "<hr>";
+                var_dump($response);
+            }*/
+            $result = $response[$method.'Result'];
+            //$result = $response[$method.'Response'];
 
             if(!$this->handleError($result)){
                 return $result;
             }
         }
         else{
+            //echo nl2br($this->debug());
             throw new LinnworksException('Error - invalid response from newsoap. See echo $api->debug() for more information');
         }
     }
@@ -95,6 +102,12 @@ class InventoryApi extends LinnworksApiBase{
     public function __construct($apiKey){
         $this->_wsdl = "http://api.linnlive.com/inventory.asmx?wsdl";
         parent::__construct($apiKey);
+    }
+
+    public function stockLevelAddDeduct($skuOrBarcode, $diff, $updateSource, $locationId){
+        $result = $this->_call('StockLevelAddDeduct', array('SKUorBarcode'=>$skuOrBarcode, 'diff'=>$diff, 'updateSource'=>$updateSource, 'pkLocationId'=>$locationId ));
+
+        return $result;
     }
 
     /*
@@ -137,6 +150,10 @@ class InventoryApi extends LinnworksApiBase{
 
     }
 
+    public function getStockItem($filter){
+        return $this->_call('GetStockItem', array('filter' => $filter));
+    }
+
     /*
      * getStockItemBySku
      *
@@ -146,7 +163,20 @@ class InventoryApi extends LinnworksApiBase{
      *      stock item array if found, otherwise returns null
      */
     public function getStockItemBySku($sku){
-        $response = $this->_call('GetStockItem', array('filter' => array('SKU'=>$sku, 'IsSetSKU'=>'true')));
+        $response = $this->getStockItem(array('SKU'=>$sku, 'IsSetSKU'=>'true'));
+
+        if($response['StockItems'] == ""){
+            return null;
+        }
+        else{
+            return $response['StockItems']['StockItem'];
+        }
+    }
+
+    public function getStockItemByBarcode($barcode)
+    {
+
+        $response = $this->getStockItem(array('BarcodeNumber' => $barcode, 'IsSetBarcodeNumber' => 'true'));
 
         if($response['StockItems'] == ""){
             return null;
@@ -163,6 +193,23 @@ class InventoryApi extends LinnworksApiBase{
      */
     public function deleteStockItem($pkStockItemId){
         $response = $this->_call('DeleteStockItem', array('pkStockItemId' => $pkStockItemId));
+    }
+
+    /*
+     * Change a binrack location
+     *
+     * args:
+     * pkStockItemId - the linnworks item id
+     * $location - the location assoc array containing:
+     *      LocationID - guid
+     *      LocationName - string (e.g. Default, Shop etc.)
+     *      BinRack - string
+     * delete - set to true to remove the binrack location
+     */
+    public function updateStockItemLocation($pkStockItemId, $location, $delete=false){
+        $response = $this->_call('UpdateStockItemLocation', array('pkStockItemId'=>$pkStockItemId, 'location'=>$location, 'Delete'=>$delete));
+
+        return true;
     }
 }
 
@@ -194,7 +241,7 @@ class OrderApi extends LinnworksApiBase{
      *      $itemId - Linnworks pkOrderItemId
      *      $audit - $audit associative array (see the above link for details)
      */
-    pubilc function addOrderAudit($itemId, $audit){
+    public function addOrderAudit($itemId, $audit){
         /*
          * Sample "object":
          * $audit = array('HistoryNote'=>'',
@@ -321,7 +368,11 @@ class GenericApi extends LinnworksApiBase{
     }
 
     public function getLocations(){
-        throw new NotImplementedException;
+        $result = $this->_call('GetLocations', array());
+
+        if(!$this->handleError($result)){
+            return $result['DataObj']['StockItemLocation'];
+        }
     }
 
     public function getOrderStatusTypes(){
