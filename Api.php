@@ -77,20 +77,13 @@ class LinnworksApiBase{
         $response = $this->getClient()->call($method, $args);
 
         if(is_array($response)){
-            /*if($method == "UpdateStockItemLocation"){
-                var_dump($params);
-                echo "<hr>";
-                var_dump($response);
-            }*/
             $result = $response[$method.'Result'];
-            //$result = $response[$method.'Response'];
 
             if(!$this->handleError($result)){
                 return $result;
             }
         }
         else{
-            //echo nl2br($this->debug());
             throw new LinnworksException('Error - invalid response from newsoap. See echo $api->debug() for more information');
         }
     }

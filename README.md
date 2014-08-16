@@ -102,7 +102,7 @@ echo "New level: " . $result['Level'];
 
 Unfortunately the linnworks documentation is not the greatest and they only provide sample API code in C#, which does not help when doing a PHP integration. 
 
-Linnworks are apparently working on a new API interface which hopefully will provide much more flexiblity. I've discovered that the current API has the following limitations:
+Linnworks are apparently working on a new API which hopefully will provide much more flexiblity. I've discovered that the current API has the following limitations:
 
 *	You can't do stock tranfers via the API
 *	You can't record the user that has performed a specific action - though in audits, e.g a product audit, it will list the API key that performed a specific action
